@@ -7,15 +7,20 @@
     "prod": "pm2 start ./bin/www"
   },
   "dependencies": {
+    "axios": "^0.18.0",
+    "bearychat": "^1.2.0",
+    "bearychat-rtm-client": "^0.8.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "dotenv": "^6.2.0",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "jade": "~1.11.0",
+    "lodash": "^4.17.11",
     "morgan": "~1.9.0",
     "mysql": "^2.16.0",
-    "pm2": "^3.3.1"
+    "pm2": "^3.3.1",
+    "ws": "^6.1.4"
   },
   "devDependencies": {
     "nodemon": "^1.18.10"
