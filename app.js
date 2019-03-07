@@ -4,24 +4,28 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mysql =  require('mysql');
+const createHubot = require('./middlewares/hubot');
+const debug = require('debug')('bearychat-githubenhanced:app.js');
 
 const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+const apiRouter = require('./routes/api');
 
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+const {
+  DB_HOST,
+  DB_USER,
+  DB_PASSWORD,
+  DB_NAME,
+  HUBOT_TOKEN,
+} = process.env;
+
+const db = mysql.createPool({
+  host: DB_HOST,
+  user: DB_USER,
+  password: DB_PASSWORD,
+  database: DB_NAME,
 });
 
-db.connect(function(err) {
-  if (err) {
-    console.log('connecting to database error');
-    return;
-  }
-  console.log('connecting to database successfully');
-});
+debug('created mysql pool')
 
 const app = express();
 
@@ -41,8 +45,10 @@ app.use(function(req, res, next) {
   next();
 });
 
+app.use(createHubot(HUBOT_TOKEN));
+
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
