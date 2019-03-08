@@ -26,6 +26,19 @@ class UserModel {
       );
     });
   }
+
+  removeToken(user_id, team_id, req) {
+    return new Promise((resolve, reject) => {
+      req.db.query(
+        `DELETE FROM users WHERE user_id = ? AND team_id = ?`,
+        [user_id, team_id],
+        (error, results) => {
+          if (error) reject(error);
+          resolve(results);
+        }
+      )
+    })
+  }
 }
 
 module.exports = new UserModel();

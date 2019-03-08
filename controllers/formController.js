@@ -96,11 +96,13 @@ class FormController {
     try {
       const results = await userModel.getAccessToken(user_id, team_id, req);
 
-      access_token = results[0].token;
-
-      if (!access_token) throw new Error();
+      if (results.length > 0) {
+        access_token = results[0].token;
+      } else {
+        throw new Error();
+      }
     } catch (e) {
-      res.json(nonAuthForm);
+      return res.json(nonAuthForm);
     }
 
     debug('access_token:', access_token);
@@ -111,12 +113,13 @@ class FormController {
           body: req.body.data.response,
         }, { params: { access_token }, });
       } catch (e) {
+        userModel.removeToken(user_id, team_id, req);
         return res.json(nonAuthForm);
       }
     }
 
     const emptyForm = formBuilder.create().getResult();
-    res.json(emptyForm);
+    return res.json(emptyForm);
   }
 }
 
