@@ -6,7 +6,6 @@ const {
   createChannelSelect,
   createSubmit,
   createInput,
-  createMemberSelect,
 } = require('../utils/components');
 const { hubotApi, githubApi } = require('../utils/request');
 const userModel = require('../models/user');
