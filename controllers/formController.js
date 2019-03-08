@@ -24,10 +24,6 @@ class FormController {
         placeholder: 'Select a channel',
         label: '请选择推送要发送到的讨论组：',
       }))
-      .add(createMemberSelect('target_member', {
-        placeholder: 'Select a member',
-        label: '请选择推送要发送到的成员：',
-      }))
       .add(createSubmit('confirm_channel', '确定'))
       .getResult();
 
