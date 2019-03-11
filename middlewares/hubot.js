@@ -16,7 +16,7 @@ function handleRTMEvent(message) {
   }
 }
 
-async function handleMessage(message) {
+function handleMessage(message) {
   if (message.uid === hubotId) return;
   debug('收到消息：', message.text);
 
