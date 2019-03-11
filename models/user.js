@@ -20,7 +20,7 @@ class UserModel {
     return await query(
       req.db,
       `INSERT INTO users (user_id, team_id, token) VALUES (?, ?, ?)`,
-      [user_id, team_id, token, token],
+      [user_id, team_id, token],
     );
   }
 
