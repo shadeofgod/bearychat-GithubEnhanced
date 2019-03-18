@@ -2,6 +2,7 @@ const express = require('express');
 const formController = require('../controllers/formController');
 const webhookController = require('../controllers/webhookController');
 const githubController = require('../controllers/githubController');
+const bearychatController = require('../controllers/bearychatController');
 const router = express.Router();
 
 router.get('/hi', function(req, res, next) {
@@ -10,8 +11,12 @@ router.get('/hi', function(req, res, next) {
 
 // select channel and create github payload url
 router.route('/gp_form')
-  .get(formController.createSelectChannelForm)
   .post(formController.createPayloadUrl);
+
+router.route('/webhook/bearychat')
+  .post(bearychatController.handleWebHook)
+router.route('/webhook/bearychat/event')
+  .post(bearychatController.handleEventWebhook)
 
 // for github webhook
 router.route('/webhook/:vchannelId')
@@ -19,7 +24,6 @@ router.route('/webhook/:vchannelId')
 
 // interact with github
 router.route('/comment_response')
-  .get(formController.createCommentResponseForm)
   .post(formController.handleCommentResponse);
 
 // requesting github oauth
