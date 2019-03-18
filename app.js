@@ -4,7 +4,6 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mysql =  require('mysql');
-const createHubot = require('./middlewares/hubot');
 const debug = require('debug')('bearychat-githubenhanced:app.js');
 
 const indexRouter = require('./routes/index');
@@ -15,7 +14,6 @@ const {
   DB_USER,
   DB_PASSWORD,
   DB_NAME,
-  HUBOT_TOKEN,
 } = process.env;
 
 const db = mysql.createPool({
@@ -44,8 +42,6 @@ app.use(function(req, res, next) {
   req.db = db;
   next();
 });
-
-app.use(createHubot(HUBOT_TOKEN));
 
 app.use('/', indexRouter);
 app.use('/api', apiRouter);
