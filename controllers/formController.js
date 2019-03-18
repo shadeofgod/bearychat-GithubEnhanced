@@ -1,12 +1,7 @@
 const getProperty = require('lodash/get');
 const debug = require('debug')('bearychat-githubenhanced:form controller');
 const formBuilder = require('../utils/formBuilder');
-const {
-  createSection,
-  createChannelSelect,
-  createSubmit,
-  createInput,
-} = require('../utils/components');
+const { createSection } = require('../utils/components');
 const { hubotApi, githubApi } = require('../utils/request');
 const userModel = require('../models/user');
 
@@ -16,19 +11,6 @@ const {
 
 
 class FormController {
-  createSelectChannelForm(req, res) {
-    const selectChannelForm = formBuilder
-      .create()
-      .add(createChannelSelect('target_channel', {
-        placeholder: 'Select a channel',
-        label: '请选择推送要发送到的讨论组：',
-      }))
-      .add(createSubmit('confirm_channel', '确定'))
-      .getResult();
-
-    res.json(selectChannelForm);
-  }
-
   async createPayloadUrl(req, res) {
     if (
       getProperty(req, 'body.action') !== 'confirm_channel'
@@ -38,7 +20,7 @@ class FormController {
     };
 
     const channel_id = req.body.data.target_channel[0];
-    const { data: { vchannel_id } } = await hubotApi.get(`/channel.info`, {
+    const { data: { vchannel_id, name } } = await hubotApi.get(`/channel.info`, {
       params: {
         channel_id,
       }
@@ -49,39 +31,16 @@ class FormController {
 
     debug('created payload url:', payloadUrl);
 
-    const emptyForm = formBuilder
-      .create()
-      .getResult();
-
-    hubotApi.patch('/message.update_text', {
+    hubotApi.post('/message.create', {
       vchannel_id: req.query.vchannel_id,
-      message_key: req.query.message_key,
-      text: `请将 payload url 填入 github repo setting 中：\n\`${payloadUrl}\``,
-      form_url: '', // will have to let backend clear the former form_url
+      text: `将此 url 填入到 github repo setting 中就可以在 **${name}** 频道收到推送啦：\n\`${payloadUrl}\`\n如果是私有频道还需要把我邀请加入频道哦`,
     });
 
-    res.json(emptyForm);
-  }
-
-  createCommentResponseForm(req, res) {
-    const { owner, repo, number, user_id, team_id } = req.query;
-
-    const commentQuickResponseForm = formBuilder
-      .create()
-      .add(createInput('owner', { hidden: true, value: owner }))
-      .add(createInput('repo', { hidden: true, value: repo }))
-      .add(createInput('number', { hidden: true, value: String(number) }))
-      .add(createInput('user_id', { hidden: true, value: user_id }))
-      .add(createInput('team_id', { hidden: true, value: team_id }))
-      .add(createInput('response', { placeholder: '快速回复' }))
-      .add(createSubmit('confirm_response', '确定'))
-      .getResult();
-
-    res.json(commentQuickResponseForm);
+    res.json({});
   }
 
   async handleCommentResponse(req, res) {
-    const { owner, repo, number, user_id, team_id } = req.body.data;
+    const { user_id, team_id, owner, repo, number } = req.query;
 
     debug('owner:', owner);
     debug('repo:', repo);
@@ -109,9 +68,14 @@ class FormController {
 
     if (owner && repo && number && access_token) {
       try {
-        await githubApi.post(`/repos/${owner}/${repo}/issues/${number}/comments`, {
+        const githubApiUrl = `/repos/${owner}/${repo}/issues/${number}/comments`;
+        const githubApiPayload = {
           body: req.body.data.response,
-        }, { params: { access_token }, });
+        };
+
+        githubApi.post(githubApiUrl, githubApiPayload, { params: { access_token } });
+
+        return res.json({});
       } catch (e) {
         userModel.removeToken(user_id, team_id, req);
         return res.json(nonAuthForm);
