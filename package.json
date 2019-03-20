@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "prod": "pm2 start ./bin/www"
+    "prod": "pm2 start --no-daemon ./bin/www"
   },
   "dependencies": {
     "axios": "^0.18.0",
