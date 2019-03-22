@@ -34,6 +34,7 @@ class FormController {
     hubotApi.post('/message.create', {
       vchannel_id: req.query.vchannel_id,
       text: `将此 url 填入到 github repo setting 中就可以在 **${name}** 频道收到推送啦：\n\`${payloadUrl}\`\n如果是私有频道还需要把我邀请加入频道哦`,
+      attachments: [],
     });
 
     res.json({});
